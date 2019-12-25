@@ -15,6 +15,6 @@ Route::apiResource('/person', 'PersonController');
 
 Route::fallback(function () {
    return response()->json([
-      'message' => 'Page Not Found. If error persists, contact info@website.com'
+      'message' => 'Page Not Found'
    ], 404);
 });
