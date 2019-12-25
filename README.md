@@ -6,6 +6,7 @@
 4. Set up `.env` file
 5. Run migrations `php artisan migrate`
 6. Seed the table `php artisan db:seed`
+7. Run project `php artisan serve`
 
 ## API Url List
 1. index[GET] - `/api/person`
