@@ -113,8 +113,8 @@ class PersonController extends Controller
      */
     public function deletePerson($id = null)
     {
-        // ttl(Time to live)
-        $ttl = 2;
+        // ttl(Time to live) 5 minutes
+        $ttl = 5;
         $result = Person::where('created_at', '<', Carbon::now()->subMinutes($ttl))
             ->when($id != null, function ($q) use ($id) {
                 $q->where('id', $id);
