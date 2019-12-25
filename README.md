@@ -5,6 +5,8 @@
 3. Run `php artisan key:generate`
 4. Set up `.env` file
 5. Run `php artisan wild:card`
+6. Import simpleapi.postman_collection.json in your postman 
+7. Run and test :D
 
 ## API Url List
 1. index[GET] - `http://127.0.0.1:8080/api/person`
