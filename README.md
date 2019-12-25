@@ -1,9 +1,14 @@
 ## Set up this project
 
-1. Clone this repo
-2. cd into the directory
-3. Run `composer install`
-4. Run `php artisan key:generate`
-5. Set up your `.env` file with the correct data
-6. Run the table migrations `php artisan migrate`
-7. Seed the database `php artisan db:seed`
+1. Clone repository
+2. Run `composer install`
+3. Run `php artisan key:generate`
+4. Set up `.env` file
+5. Run migrations `php artisan migrate`
+6. Seed the table `php artisan db:seed`
+
+## API Url List
+1. index[GET] - `/api/person`
+2. single[GET] - `/api/person/1`
+3. insert[POST] - `/api/person`
+4. update[PUT] - `/api/person/1`
