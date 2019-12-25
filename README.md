@@ -4,12 +4,10 @@
 2. Run `composer install`
 3. Run `php artisan key:generate`
 4. Set up `.env` file
-5. Run migrations `php artisan migrate`
-6. Seed the table `php artisan db:seed`
-7. Run project `php artisan serve`
+5. Run `php artisan wild:card`
 
 ## API Url List
-1. index[GET] - `/api/person`
-2. single[GET] - `/api/person/1`
-3. insert[POST] - `/api/person`
-4. update[PUT] - `/api/person/1`
+1. index[GET] - `http://127.0.0.1:8080/api/person`
+2. single[GET] - `http://127.0.0.1:8080/api/person/1`
+3. insert[POST] - `http://127.0.0.1:8080/api/person`
+4. update[PUT] - `http://127.0.0.1:8080/api/person/1`
