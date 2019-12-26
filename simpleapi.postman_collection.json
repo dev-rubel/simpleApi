@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ab81939d-2cbe-45ca-a7db-0e26ccc99277",
+		"_postman_id": "d2a0a455-16da-47bb-8b44-26fd48c49926",
 		"name": "simpleapi",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -86,7 +86,7 @@
 					"raw": "{\n\t\"first_name\": \"cc\"\n}"
 				},
 				"url": {
-					"raw": "http://127.0.0.1:8080/api/person/1",
+					"raw": "http://127.0.0.1:8080/api/person/1?",
 					"protocol": "http",
 					"host": [
 						"127",
@@ -147,13 +147,6 @@
 					"path": [
 						"api",
 						"person"
-					],
-					"query": [
-						{
-							"key": "",
-							"value": "",
-							"disabled": true
-						}
 					]
 				}
 			},
@@ -189,6 +182,35 @@
 						"api",
 						"person",
 						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Multi",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8080/api/multi?ids=1,2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"multi"
+					],
+					"query": [
+						{
+							"key": "ids",
+							"value": "1,2"
+						}
 					]
 				}
 			},

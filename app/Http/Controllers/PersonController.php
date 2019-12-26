@@ -8,9 +8,13 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Resources\PersonResource;
 use App\Http\Resources\PersonResourceCollection;
+use Illuminate\Support\Facades\Cache;
 
 class PersonController extends Controller
 {
+
+    public $ttl = 1;
+
     /**
      * @param Person $person
      * @return PersonResource
@@ -18,19 +22,57 @@ class PersonController extends Controller
     public function show(Person $person)
     {
         try {
-            // remove person after ttl
-            $result = $this->deletePerson($person->id);
-            if (!$result) {
-                // if person alive :D
-                return (new PersonResource($person))->response()
+            // ttl check
+            $returnPerson = $this->ttl('show', $person);
+            if (!empty($returnPerson)) {
+                return (new PersonResource($returnPerson))->response()
                     ->setStatusCode(200);
             } else {
                 return response()->json([
-                    'message' => 'Entry for Person not found'
+                    'message' => 'No Data found'
                 ], 404);
             }
         } catch (Exception $ex) {
             abort(500, $ex->getMessage());
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return PersonResourceCollection
+     */
+    public function multi(Request $request)
+    {
+        $parsonList = [];
+        $ids = $request->ids;
+        if (isset($request->ids)) {
+            $idList = explode(',', $ids);
+            foreach ($idList as $k => $id) {
+                if ($singlePerson = Person::find($id)) {
+                    $parsonList[] = $singlePerson;
+                }
+            }
+            if (!empty($parsonList)) {
+                // ttl check
+                $returnPerson = $this->ttl('multi', $parsonList);
+                if (!empty($returnPerson)) {
+                    return (new PersonResourceCollection($returnPerson))
+                        ->response()
+                        ->setStatusCode(200);
+                } else {
+                    return response()->json([
+                        'message' => 'No Data found'
+                    ], 404);
+                }
+            } else {
+                return response()->json([
+                    'message' => 'No data found. In those Id\'s'
+                ], 404);
+            }
+        } else {
+            return response()->json([
+                'message' => 'Invalid Id Formate.'
+            ], 404);
         }
     }
 
@@ -40,14 +82,18 @@ class PersonController extends Controller
     public function index()
     {
         try {
-            // remove person after ttl
-            // it can also done by laravel task schedule (and i think task scheduler are the best method for this situation(Time to live))
-            $this->deletePerson();
             $person = Person::get();
             if (!$person->isEmpty()) {
-                return (new PersonResourceCollection($person))
-                    ->response()
-                    ->setStatusCode(200);
+                $returnPerson = $this->ttl('index', $person);
+                if (!empty($returnPerson)) {
+                    return (new PersonResourceCollection($returnPerson))
+                        ->response()
+                        ->setStatusCode(200);
+                } else {
+                    return response()->json([
+                        'message' => 'No Data found'
+                    ], 404);
+                }
             } else {
                 return response()->json([
                     'message' => 'No Person found'
@@ -89,17 +135,15 @@ class PersonController extends Controller
     public function update(Request $request, Person $person)
     {
         try {
-            // remove person after ttl
-            $result = $this->deletePerson($person->id);
-            if (!$result) {
-                // if person alive :D
-                $person->update($request->all());
-                return (new PersonResource($person))
+            $person->update($request->all());
+            $returnPerson = $this->ttl('updatePerson_' . $person->id, $person, true);
+            if (!empty($returnPerson)) {
+                return (new PersonResource($returnPerson))
                     ->response()
                     ->setStatusCode(202); // 202 Accepted
             } else {
                 return response()->json([
-                    'message' => 'Entry for Person not found'
+                    'message' => 'No Data found'
                 ], 404);
             }
         } catch (Exception $ex) {
@@ -108,17 +152,33 @@ class PersonController extends Controller
     }
 
     /**
-     * @param $id = null
-     * @return $result
+     * @param $cacheId
+     * @param $person
+     * @param $update
+     * @return Cache
      */
-    public function deletePerson($id = null)
+    public function ttl($cacheId = '', $person = [], $update = false)
     {
-        // ttl(Time to live) 5 minutes
-        $ttl = 5;
-        $result = Person::where('created_at', '<', Carbon::now()->subMinutes($ttl))
-            ->when($id != null, function ($q) use ($id) {
-                $q->where('id', $id);
-            })->delete();
-        return $result;
+        if (!empty($cacheId) && !empty($person)) {
+            if (!Cache::has($cacheId)) {
+                Cache::remember($cacheId, now()->addMinutes($this->ttl), function () use ($person) {
+                    return $person;
+                });
+                return Cache::get($cacheId);
+            } else {
+                if ($update) {
+                    // update cache
+                    Cache::forget($cacheId);
+                    Cache::remember($cacheId, now()->addMinutes($this->ttl), function () use ($person) {
+                        return $person;
+                    });
+                    return Cache::get($cacheId);
+                } else {
+                    return Cache::get($cacheId);
+                }
+            }
+        } else {
+            return [];
+        }
     }
 }
